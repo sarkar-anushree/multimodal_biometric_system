@@ -1,6 +1,7 @@
 import pytest
 from omegaconf import OmegaConf
 
+
 @pytest.fixture
 def dummy_cfg():
     """Provides a minimal Hydra DictConfig for component testing."""

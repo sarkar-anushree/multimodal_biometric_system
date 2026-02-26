@@ -3,7 +3,6 @@ Component for parsing historical metrics and generating evaluation visuals.
 """
 import os
 import json
-import logging
 import matplotlib.pyplot as plt
 from omegaconf import DictConfig
 

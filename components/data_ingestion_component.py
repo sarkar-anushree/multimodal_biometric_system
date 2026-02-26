@@ -2,9 +2,9 @@
 Component for parallelized reading of raw biometric image files into Parquet artifacts.
 """
 import os
-import logging
 import ray
 import pyarrow as pa
+import numpy as np
 import pyarrow.parquet as pq
 from tqdm import tqdm
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
@@ -12,7 +12,6 @@ from omegaconf import DictConfig
 
 from components.base import BaseComponent
 
-logger = logging.getLogger(__name__)
 
 
 def _load_image(person_path: str, modality: str, size: tuple, grayscale: bool = False) -> np.ndarray:
@@ -123,6 +122,6 @@ class DataIngestionComponent(BaseComponent):
 
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         pq.write_table(pa.concat_tables(valid_tables), output_path)
-        self.logger.info(f"Ingestion complete. Artifact saved successfully.")
+        self.logger.info(f"Ingestion complete. Artifact saved successfully at {output_path}")
 
         return output_path

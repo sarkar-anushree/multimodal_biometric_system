@@ -2,7 +2,6 @@
 Component for defining and compiling the multimodal Keras architecture.
 """
 import os
-import logging
 import tensorflow as tf
 from tensorflow.keras import layers, Model
 from tensorflow.keras.applications import MobileNetV2

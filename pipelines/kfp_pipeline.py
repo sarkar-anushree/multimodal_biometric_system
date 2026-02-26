@@ -20,37 +20,31 @@ logger = logging.getLogger(__name__)
 # ==========================================
 
 @dsl.component(base_image=BASE_IMAGE)
-def ingest_op(cfg_json: str, output_parquet: dsl.OutputPath('Dataset')):
+def ingest_op(cfg_json: str, output_parquet: dsl.OutputPath("Dataset")):
     import json
-    import logging
     from omegaconf import OmegaConf
     from components.data_ingestion_component import DataIngestionComponent
 
-    logging.basicConfig(level=logging.INFO)
     cfg = OmegaConf.create(json.loads(cfg_json))
     DataIngestionComponent(cfg).execute(output_path=output_parquet)
 
 
 @dsl.component(base_image=BASE_IMAGE)
-def preprocess_op(cfg_json: str, input_parquet: dsl.InputPath('Dataset'), output_npz: dsl.OutputPath('Dataset')):
+def preprocess_op(cfg_json: str, input_parquet: dsl.InputPath("Dataset"), output_npz: dsl.OutputPath("Dataset")):
     import json
-    import logging
     from omegaconf import OmegaConf
     from components.data_preprocessing_component import DataPreprocessingComponent
 
-    logging.basicConfig(level=logging.INFO)
     cfg = OmegaConf.create(json.loads(cfg_json))
     DataPreprocessingComponent(cfg).execute(input_parquet_path=input_parquet, output_npz_path=output_npz)
 
 
 @dsl.component(base_image=BASE_IMAGE)
-def build_model_op(cfg_json: str, output_model: dsl.OutputPath('Model')):
+def build_model_op(cfg_json: str, output_model: dsl.OutputPath("Model")):
     import json
-    import logging
     from omegaconf import OmegaConf
     from components.model_building_component import ModelBuildingComponent
 
-    logging.basicConfig(level=logging.INFO)
     cfg = OmegaConf.create(json.loads(cfg_json))
     ModelBuildingComponent(cfg).execute(output_model_path=output_model)
 
@@ -58,14 +52,12 @@ def build_model_op(cfg_json: str, output_model: dsl.OutputPath('Model')):
 @dsl.component(base_image=BASE_IMAGE)
 def train_model_op(
         cfg_json: str,
-        input_npz: dsl.InputPath('Dataset'),
-        input_model: dsl.InputPath('Model'),
-        output_model: dsl.OutputPath('Model'),
-        output_history: dsl.OutputPath('Dataset')
+        input_npz: dsl.InputPath("Dataset"),
+        input_model: dsl.InputPath("Model"),
+        output_model: dsl.OutputPath("Model"),
+        output_history: dsl.OutputPath("Dataset")
 ):
     import json
-    import logging
-    import mlflow
     from omegaconf import OmegaConf
     from components.model_training_component import ModelTrainingComponent
 
@@ -80,7 +72,7 @@ def train_model_op(
 
 
 @dsl.component(base_image=BASE_IMAGE)
-def evaluate_model_op(cfg_json: str, input_history: dsl.InputPath('Dataset'), output_plot: dsl.OutputPath('Artifact')):
+def evaluate_model_op(cfg_json: str, input_history: dsl.InputPath("Dataset"), output_plot: dsl.OutputPath("Artifact")):
     import json
     import logging
     from omegaconf import OmegaConf
@@ -114,7 +106,7 @@ class BiometricTrainingPipeline(BasePipeline):
                         str(self.cfg.components.ingestion.compute.cpu_request)).set_memory_request(
                         str(self.cfg.components.ingestion.compute.memory_request))
 
-            preprocess = (preprocess_op(cfg_json=preprocess_cfg, input_parquet=ingest.outputs['output_parquet']).
+            preprocess = (preprocess_op(cfg_json=preprocess_cfg, input_parquet=ingest.outputs["output_parquet"]).
                         set_cpu_request(
                         str(self.cfg.components.preprocessing.compute.cpu_request)).set_memory_request(
                         str(self.cfg.components.preprocessing.compute.memory_request)))
@@ -123,13 +115,12 @@ class BiometricTrainingPipeline(BasePipeline):
                         str(self.cfg.components.building.compute.cpu_request)).set_memory_request(
                         str(self.cfg.components.building.compute.memory_request))
 
-            train = train_model_op(
-                cfg_json=train_cfg,
-                input_npz=preprocess.outputs['output_npz'],
-                input_model=build.outputs['output_model']
-            ).set_gpu_limit(str(self.cfg.components.training.compute.gpu_limit)).set_cpu_request(
+            train = (train_model_op(cfg_json=train_cfg,
+                    input_npz=preprocess.outputs["output_npz"],
+                    input_model=build.outputs["output_model"]).
+                    set_gpu_limit(str(self.cfg.components.training.compute.gpu_limit)).set_cpu_request(
                         str(self.cfg.components.training.compute.cpu_request)).set_memory_request(
-                        str(self.cfg.components.training.compute.memory_request))
+                        str(self.cfg.components.training.compute.memory_request)))
 
             evaluate_model_op(cfg_json=evaluate_cfg, input_history=train.outputs['output_history']).set_cpu_request(
                         str(self.cfg.components.evaluation.compute.cpu_request)).set_memory_request(

@@ -2,7 +2,6 @@
 Component for reshaping, normalizing, and encoding raw data into model-ready tensors.
 """
 import os
-import logging
 import numpy as np
 import tensorflow as tf
 import pyarrow.parquet as pq
