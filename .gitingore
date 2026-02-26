@@ -1,0 +1,32 @@
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python Bytecode / Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Pipeline Artifacts & Local Outputs
+outputs/
+biometric_pipeline.yaml
+mlruns/
+*.db
+
+# Distributed Computing Logs (Ray)
+/tmp/ray/
+*.log
+
+# Coverage / Testing
+.coverage
+htmlcov/
+.tox/
+

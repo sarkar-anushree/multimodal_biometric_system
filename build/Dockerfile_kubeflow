@@ -1,0 +1,20 @@
+FROM tensorflow/tensorflow:2.15.0-gpu
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y libgl1-mesa-glx && rm -rf /var/lib/apt/lists/*
+
+# UPDATED: Copy from the requirements folder
+COPY requirements/requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# UPDATED: Copy the new folder structures
+COPY components/ components/
+COPY config/ config/
+COPY utils/ utils/
+COPY pipelines/ pipelines/
+
+# UPDATED: Point the entrypoint to the new pipeline script location
+ENTRYPOINT ["python", "pipelines/kfp_pipeline.py"]

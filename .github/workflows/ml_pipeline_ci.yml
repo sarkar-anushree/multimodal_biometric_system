@@ -1,0 +1,75 @@
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # UPDATED: path
+          pip install -r requirements/requirements.txt
+
+      - name: Run Flake8 Linting
+        # UPDATED: path
+        run: flake8 components/ utils/ pipelines/ tests/ --max-line-length=120
+
+      - name: Run Pytest Suite
+        run: pytest tests/ -v
+
+  build-and-compile:
+    needs: test-and-lint
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set Image Name and Tag
+        id: meta
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_URI="ghcr.io/$REPO_OWNER/biometric-pipeline:${{ github.sha }}"
+          echo "image_uri=$IMAGE_URI" >> $GITHUB_ENV
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          # UPDATED: Point to the Dockerfile in the build directory
+          file: build/Dockerfile_kubeflow
+          push: true
+          tags: ${{ env.image_uri }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install Compilation Dependencies
+        run: pip install kfp omegaconf
+
+      - name: Inject Dynamic Image Tag into KFP Pipeline
+        # UPDATED: path
+        run: |
+          sed -i "s|BASE_IMAGE = \"biometric-pipeline:v1\"|BASE_IMAGE = \"${{ env.image_uri }}\"|g" pipelines/kfp_pipeline.py
+
+      - name: Compile Kubeflow Pipeline YAML
+        # UPDATED: path
+        run: python pipelines/kfp_pipeline.py
+
+      - name: Upload Compiled Pipeline Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: biometric-kubeflow-pipeline
+          path: biometric_pipeline.yaml
+          retention-days: 14

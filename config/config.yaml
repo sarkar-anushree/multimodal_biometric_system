@@ -1,0 +1,58 @@
+core:
+  seed: 42
+
+dataset_globals:
+  base_path: '/input/multimodal-iris-fingerprint-biometric-data/IRIS and FINGERPRINT DATASET'
+  num_people: 45
+  fingerprint_shape: [128, 128, 3]
+  iris_shape: [64, 64, 1]
+
+components:
+  ingestion:
+    seed: ${core.seed}
+    base_path: ${dataset_globals.base_path}
+    num_people: ${dataset_globals.num_people}
+    fingerprint_shape: ${dataset_globals.fingerprint_shape}
+    iris_shape: ${dataset_globals.iris_shape}
+    compute:
+      cpu_request: '4'
+      memory_request: '8G'
+
+  preprocessing:
+    seed: ${core.seed}
+    fingerprint_shape: ${dataset_globals.fingerprint_shape}
+    iris_shape: ${dataset_globals.iris_shape}
+    compute:
+      cpu_request: '2'
+      memory_request: '8G'
+
+  building:
+    seed: ${core.seed}
+    fingerprint_shape: ${dataset_globals.fingerprint_shape}
+    iris_shape: ${dataset_globals.iris_shape}
+    num_classes: ${dataset_globals.num_people}
+    dense_units: 128
+    dropout_rate: 0.5
+    l2_reg: 0.01
+    compute:
+      cpu_request: '2'
+      memory_request: '4G'
+
+  training:
+    seed: ${core.seed}
+    learning_rate: 0.0001
+    batch_size: 8
+    epochs: 50
+    compute:
+      cpu_request: '4'
+      memory_request: '16G'
+      gpu_limit: '1'
+    mlflow:
+      tracking_uri: "http://localhost:5000"
+      experiment_name: "multimodal_biometric_recognition"
+
+  evaluation:
+    seed: ${core.seed}
+    compute:
+      cpu_request: '2'
+      memory_request: '4G'
