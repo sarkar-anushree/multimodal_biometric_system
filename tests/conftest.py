@@ -6,7 +6,7 @@ from omegaconf import OmegaConf
 def dummy_cfg():
     """Provides a minimal Hydra DictConfig for component testing."""
     yaml_string = """
-    base_path: '/dummy/path'
+    base_path: 'test_data/dataset'
     num_people: 2
     fingerprint_shape: [128, 128, 3]
     iris_shape: [64, 64, 1]
@@ -17,6 +17,7 @@ def dummy_cfg():
     learning_rate: 0.001
     batch_size: 2
     epochs: 1
+    seed: 42
     mlflow:
       tracking_uri: "http://localhost:5000"
       experiment_name: "test_experiment"

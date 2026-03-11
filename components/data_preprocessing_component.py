@@ -44,10 +44,11 @@ class DataPreprocessingComponent(BaseComponent):
         finger_shape = tuple(self.cfg.fingerprint_shape)
         iris_shape = tuple(self.cfg.iris_shape)
 
-        finger_data = table.column('fingerprint').flatten().to_numpy().reshape(-1, *finger_shape)
-        left_iris_data = table.column('left_iris').flatten().to_numpy().reshape(-1, *iris_shape)
-        right_iris_data = table.column('right_iris').flatten().to_numpy().reshape(-1, *iris_shape)
-        labels = table.column('label').to_numpy()
+        # Safely extract PyArrow columns to lists, then cast and reshape natively in NumPy
+        finger_data = np.array(table.column('fingerprint').to_pylist()).reshape(-1, *finger_shape)
+        left_iris_data = np.array(table.column('left_iris').to_pylist()).reshape(-1, *iris_shape)
+        right_iris_data = np.array(table.column('right_iris').to_pylist()).reshape(-1, *iris_shape)
+        labels = np.array(table.column('label').to_pylist())
 
         self.logger.info("Applying tensor normalizations and categorical encoding.")
         X_finger = np.repeat(finger_data, 3, axis=-1) / 255.0 if finger_data.shape[-1] == 1 else finger_data / 255.0
@@ -55,7 +56,7 @@ class DataPreprocessingComponent(BaseComponent):
         X_right_iris = right_iris_data / 255.0
 
         num_classes = len(np.unique(labels))
-        y = tf.keras.utils.to_categorical(labels, num_classes)
+        y = tf.keras.utils.to_categorical(labels)
 
         os.makedirs(os.path.dirname(output_npz_path), exist_ok=True)
         np.savez_compressed(output_npz_path, X_finger=X_finger, X_left=X_left_iris, X_right=X_right_iris, y=y)

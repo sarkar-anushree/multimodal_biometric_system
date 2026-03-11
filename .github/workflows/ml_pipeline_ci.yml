@@ -69,12 +69,11 @@ jobs:
         run: pip install kfp omegaconf
 
       - name: Inject Dynamic Image Tag into KFP Pipeline
-        # UPDATED: path
+
         run: |
           sed -i "s|BASE_IMAGE = \"biometric-pipeline:v1\"|BASE_IMAGE = \"${{ env.image_uri }}\"|g" pipelines/kfp_pipeline.py
 
       - name: Compile Kubeflow Pipeline YAML
-        # UPDATED: path
         run: python pipelines/kfp_pipeline.py
 
       - name: Upload Compiled Pipeline Artifact
