@@ -23,4 +23,3 @@ def dummy_cfg():
       experiment_name: "test_experiment"
     """
     return OmegaConf.create(yaml_string)
-

@@ -1,5 +1,4 @@
 import os
-import json
 import numpy as np
 from unittest.mock import patch, MagicMock
 from components.model_training_component import ModelTrainingComponent

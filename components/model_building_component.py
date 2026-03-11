@@ -19,7 +19,7 @@ class ModelBuildingComponent(BaseComponent):
     def __init__(self, cfg: DictConfig):
         super().__init__(cfg)
 
-    def _create_iris_branch(self, input_shape: tuple, name_prefix: str = "") -> Model:
+    def _create_iris_branch(self, input_shape: tuple, name_prefix: str = "shared_iris") -> Model:
         """
         Creates a dedicated Convolutional Neural Network branch for iris processing.
 

@@ -55,7 +55,6 @@ class DataPreprocessingComponent(BaseComponent):
         X_left_iris = left_iris_data / 255.0
         X_right_iris = right_iris_data / 255.0
 
-        num_classes = len(np.unique(labels))
         y = tf.keras.utils.to_categorical(labels)
 
         os.makedirs(os.path.dirname(output_npz_path), exist_ok=True)

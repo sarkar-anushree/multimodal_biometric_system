@@ -4,6 +4,7 @@ The primary orchestrator mapping the object-oriented Python components to Kubefl
 import json
 import logging
 from kfp import dsl
+from kfp.dsl import Dataset, Model, Artifact
 from omegaconf import OmegaConf
 
 from pipeline.base import BasePipeline
@@ -107,20 +108,20 @@ class BiometricTrainingPipeline(BasePipeline):
                         str(self.cfg.components.ingestion.compute.memory_request))
 
             preprocess = (preprocess_op(cfg_json=preprocess_cfg, input_parquet=ingest.outputs["output_parquet"]).
-                        set_cpu_request(
-                        str(self.cfg.components.preprocessing.compute.cpu_request)).set_memory_request(
-                        str(self.cfg.components.preprocessing.compute.memory_request)))
+                            set_cpu_request(
+                            str(self.cfg.components.preprocessing.compute.cpu_request)).set_memory_request(
+                            str(self.cfg.components.preprocessing.compute.memory_request)))
 
             build = build_model_op(cfg_json=build_cfg).set_cpu_request(
                         str(self.cfg.components.building.compute.cpu_request)).set_memory_request(
                         str(self.cfg.components.building.compute.memory_request))
 
             train = (train_model_op(cfg_json=train_cfg,
-                    input_npz=preprocess.outputs["output_npz"],
-                    input_model=build.outputs["output_model"]).
-                    set_gpu_limit(str(self.cfg.components.training.compute.gpu_limit)).set_cpu_request(
-                        str(self.cfg.components.training.compute.cpu_request)).set_memory_request(
-                        str(self.cfg.components.training.compute.memory_request)))
+                        input_npz=preprocess.outputs["output_npz"],
+                        input_model=build.outputs["output_model"]).
+                        set_gpu_limit(str(self.cfg.components.training.compute.gpu_limit)).set_cpu_request(
+                            str(self.cfg.components.training.compute.cpu_request)).set_memory_request(
+                            str(self.cfg.components.training.compute.memory_request)))
 
             evaluate_model_op(cfg_json=evaluate_cfg, input_history=train.outputs['output_history']).set_cpu_request(
                         str(self.cfg.components.evaluation.compute.cpu_request)).set_memory_request(

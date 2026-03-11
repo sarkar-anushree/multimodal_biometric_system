@@ -3,7 +3,6 @@ Component for executing model training while automatically logging telemetry to 
 """
 import os
 import json
-import logging
 import numpy as np
 import tensorflow as tf
 import mlflow

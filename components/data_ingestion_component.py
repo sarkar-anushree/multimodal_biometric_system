@@ -9,9 +9,7 @@ import pyarrow.parquet as pq
 from tqdm import tqdm
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from omegaconf import DictConfig
-
 from components.base import BaseComponent
-
 
 
 def _load_image(person_path: str, modality: str, size: tuple, grayscale: bool = False) -> np.ndarray:
