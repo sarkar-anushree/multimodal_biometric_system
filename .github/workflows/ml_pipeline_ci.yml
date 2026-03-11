@@ -20,8 +20,8 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          python -m pip install --upgrade pip
-          # UPDATED: path
+          python -m pip install --upgrade pip setuptools wheel
+          pip install "packaging<24"
           pip install -r requirements/requirements.txt
 
       - name: Run Flake8 Linting
